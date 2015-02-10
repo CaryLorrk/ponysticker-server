@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,7 +37,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "test at", time.Now(), "\n")
 	fmt.Fprintln(w, "APIs:")
 	fmt.Fprintln(w, "meta?repo=<REPO>&pkg=<INT>")
-	fmt.Fprintln(w, "sticker?pkg=<INT>&sticker=<INT>")
+	fmt.Fprintln(w, "sticker?pkg=<INT>&sticker=<INT>[&base64=<0|1>]")
 	fmt.Fprintln(w, "pkg-list?repo=<REPO>&page=<INT>&size=<INT>&order=<packageId|date>[&q=<STRING>]")
 	fmt.Fprintln(w, "pkg-count?repo=<REPO>[&q=<STRING>]")
 	fmt.Fprintln(w, "<REPO>=<official|creator|custom>")
@@ -91,6 +93,8 @@ func stickerHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	isBase64 := r.FormValue("base64")
+
 	filePath := path.Join(stickerDirectory, packageId, sticker+IMAGE_EXTENSION)
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -103,11 +107,28 @@ func stickerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = io.Copy(w, file)
-	if err != nil {
-		logger.Panicln(err.Error())
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+	if isBase64 == "1" {
+		buf := bytes.NewBuffer(nil)
+		_, err = io.Copy(buf, file)
+		if err != nil {
+			logger.Panicln(err.Error())
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		str := base64.StdEncoding.EncodeToString(buf.Bytes())
+		_, err := fmt.Fprint(w, str)
+		if err != nil {
+			logger.Panicln(err.Error())
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		_, err = io.Copy(w, file)
+		if err != nil {
+			logger.Panicln(err.Error())
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 	w.Header().Set("Content-Type", IMAGE_MIME_TYPE)
 }
