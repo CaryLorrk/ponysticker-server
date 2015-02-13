@@ -19,11 +19,11 @@ func Insert(id int) {
 func insert(id int) {
 	metaPath := path.Join(stickerDirectory, fmt.Sprint(id), "productInfo.meta")
 	metaFile, err := os.Open(metaPath)
-	defer metaFile.Close()
 	if err != nil {
 		logger.Println(err)
 		return
 	}
+	defer metaFile.Close()
 
 	metaData, err := ioutil.ReadAll(metaFile)
 	if err != nil {

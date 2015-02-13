@@ -246,62 +246,6 @@ func queryPackage(w http.ResponseWriter, repo string, page, size int, order, que
 	return nil
 }
 
-//func queryPackage(w http.ResponseWriter, repo string, page int, query string) error {
-//var format string
-//switch repo {
-//case "official":
-//format = OFFICIAL_STICKER_SEARCH_FORMAT
-//case "creator":
-//format = CREATOR_STICKER_SEARCH_FORMAT
-//}
-//queryUrl := fmt.Sprintf(format, page, url.QueryEscape(query))
-//doc, err := goquery.NewDocument(queryUrl)
-//if err != nil {
-//return err
-//}
-//fmt.Println(queryUrl)
-//packagelist := make([]int, 0, PAGE_LIMIT)
-//doc.Find(".mdMN02Li").Each(func(i int, s *goquery.Selection) {
-//link, exists := s.Find("a").Attr("href")
-//fmt.Println(exists, link)
-//var packageId int
-//_, err = fmt.Sscanf(link, STICKER_LINK_FORMAT, &packageId)
-//if err != nil {
-//return
-//}
-
-//packagelist = append(packagelist, packageId)
-//})
-//if err != nil {
-//return err
-//}
-
-//tx, err := stickerDB.Begin()
-//if err != nil {
-//return err
-//}
-
-//metalist := make([]string, 0, PAGE_LIMIT)
-//for _, packageId := range packagelist {
-//var meta string
-//err := tx.QueryRow("SELECT meta FROM package WHERE packageId=?", packageId).Scan(&meta)
-//if err != nil {
-//if err.Error() == "sql: no rows in result set" {
-//logger.Println("need update package", packageId)
-//continue
-//} else {
-//return err
-//}
-//}
-//metalist = append(metalist, meta)
-//}
-//res := "[" + strings.Join(metalist, ",") + "]"
-//fmt.Fprint(w, res)
-//w.Header().Set("Content-Type", "application/json")
-
-//return nil
-//}
-
 func listPackage(w http.ResponseWriter, repo string, page, size int, order string) error {
 	tx, err := stickerDB.Begin()
 	if err != nil {

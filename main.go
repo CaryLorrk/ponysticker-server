@@ -131,7 +131,7 @@ func setupLogger() {
 		os.Exit(-1)
 	}
 	writer := io.MultiWriter(logFile, os.Stderr)
-	logger = NewLogger(writer, "FreeLiner ", log.LstdFlags)
+	logger = NewLogger(writer, "PonySticker", log.LstdFlags)
 }
 
 func main() {
@@ -143,7 +143,7 @@ func main() {
 	switch os.Args[1] {
 	case "update":
 		if len(os.Args) < 4 {
-			fmt.Println("freeliner-server update <begin> <end>")
+			fmt.Println("ponysticker-server update <begin> <end>")
 			os.Exit(0)
 		}
 
@@ -162,7 +162,7 @@ func main() {
 		Update(begin, end)
 	case "insert":
 		if len(os.Args) < 3 {
-			fmt.Println("freeliner-server insert <id>")
+			fmt.Println("ponysticker-server insert <id>")
 			os.Exit(0)
 		}
 
@@ -187,15 +187,36 @@ func main() {
 		}
 
 		Run(port)
+	case "create":
+		if len(os.Args) < 4 {
+			fmt.Println("ponysticker-server create <id> <begin>")
+			os.Exit(0)
+		}
+
+		id, err := strconv.Atoi(os.Args[2])
+		if err != nil || id >= 0 {
+			fmt.Println("id must be a negative number.")
+			os.Exit(0)
+		}
+
+		begin, err := strconv.Atoi(os.Args[3])
+		if err != nil {
+			fmt.Println("begin must be a number.")
+			os.Exit(0)
+		}
+
+		create(id, begin)
+
 	default:
 		printHelp()
 	}
 }
 
 func printHelp() {
-	fmt.Println("freeliner-server <command>\n")
+	fmt.Println("ponysticker-server <command>\n")
 	fmt.Println("commands:")
 	fmt.Println("  update <begin> <end>")
 	fmt.Println("  run [port]")
 	fmt.Println("  insert <id>")
+	fmt.Println("  create <id> <begin>")
 }
