@@ -145,7 +145,7 @@ func pkgCountHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var count int
 	if query == "" {
-		err = stickerDB.QueryRow("SELECT COUNT(*) FROM " + repo).Scan(&count)
+		err = stickerDB.QueryRow("SELECT count FROM meta WHERE name=?", repo).Scan(&count)
 	} else {
 		repo_fts := repo + "_fts"
 		err = stickerDB.QueryRow("SELECT COUNT(meta) "+

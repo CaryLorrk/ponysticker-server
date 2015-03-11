@@ -105,7 +105,15 @@ func setupTable() {
 		CREATE VIRTUAL TABLE IF NOT EXISTS custom_fts USING fts4 (
 			packageId INTEGER,
 			title TEXT,
-			author TEXT);`)
+			author TEXT);
+
+		CREATE TABLE IF NOT EXISTS meta(
+			name TEXT PRIMARY KEY,
+			count INTEGER
+		);
+		INSERT OR IGNORE INTO meta(name, count) VALUES ('official', 0);
+		INSERT OR IGNORE INTO meta(name, count) VALUES ('creator', 0);
+		INSERT OR IGNORE INTO meta(name, count) VALUES ('custom', 0);`)
 
 	if err != nil {
 		logger.Println(err)
@@ -160,6 +168,7 @@ func main() {
 		}
 
 		Update(begin, end)
+		UpdateAllCount()
 	case "insert":
 		if len(os.Args) < 3 {
 			fmt.Println("ponysticker-server insert <id>")
@@ -173,6 +182,7 @@ func main() {
 		}
 
 		Insert(id)
+		UpdateAllCount()
 	case "run":
 		var port int
 		if len(os.Args) < 3 {
@@ -206,6 +216,7 @@ func main() {
 		}
 
 		create(id, begin)
+		updateRepoCount("custom")
 
 	default:
 		printHelp()
